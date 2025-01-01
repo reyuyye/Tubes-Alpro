@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 )
 
 type Mahasiswa struct {
@@ -22,6 +24,8 @@ var mahasiswaList [MAX_DATA]Mahasiswa
 var jurusanList [MAX_DATA]Jurusan
 var totalMahasiswa int
 var totalJurusan int
+var totalToken int
+var tokenList []string
 
 // Fungsi untuk Data Dummy
 func init() {
@@ -108,14 +112,15 @@ func menuAdmin() {
 	}
 }
 
-// Menu Calon Mahasiswa
+// / Menu Calon Mahasiswa
 func menuCalonMahasiswa() {
 	var pilihan int
 	for {
 		fmt.Println("\n--- Menu Calon Mahasiswa ---")
 		fmt.Println("1. Daftar Mahasiswa Baru")
 		fmt.Println("2. Cek Status Pendaftaran")
-		fmt.Println("3. Kembali ke Menu Utama")
+		fmt.Println("3. Beli Token Pendaftaran")
+		fmt.Println("4. Kembali ke Menu Utama")
 		fmt.Print("Masukkan pilihan: ")
 		fmt.Scan(&pilihan)
 
@@ -125,6 +130,8 @@ func menuCalonMahasiswa() {
 		case 2:
 			cekStatusMahasiswa()
 		case 3:
+			beliTokenPendaftaran()
+		case 4:
 			return
 		default:
 			fmt.Println("Pilihan tidak valid!")
@@ -196,6 +203,15 @@ func menuPendaftaranMahasiswa() {
 		return
 	}
 
+	var token string
+	fmt.Print("Masukkan Token Pendaftaran: ")
+	fmt.Scan(&token)
+
+	if !validasiToken(token) {
+		fmt.Println("Token tidak valid! Silakan beli token terlebih dahulu.")
+		return
+	}
+
 	var m Mahasiswa
 	fmt.Print("Masukkan Nama: ")
 	fmt.Scan(&m.Nama)
@@ -227,6 +243,47 @@ func menuPendaftaranMahasiswa() {
 	mahasiswaList[totalMahasiswa] = m
 	totalMahasiswa++
 	fmt.Println("Pendaftaran berhasil!")
+}
+
+// Fungsi Validasi Token
+func validasiToken(token string) bool {
+	for i := 0; i < totalToken; i++ {
+		if tokenList[i] == token {
+			tokenList[i] = ""
+			return true
+		}
+	}
+	return false
+}
+
+func beliTokenPendaftaran() {
+	fmt.Println("--- Pembelian Token ---")
+	fmt.Println("Silakan transfer ke rekening berikut:")
+	fmt.Println("Rekening: 23-111-02-082")
+	fmt.Println("Atas Nama: Universitas Uye")
+	fmt.Print("Apakah Anda sudah transfer? (y/n): ")
+	var pilihan string
+	fmt.Scan(&pilihan)
+
+	if pilihan == "y" || pilihan == "Y" {
+		if totalToken >= MAX_DATA {
+			fmt.Println("Token penuh! Tidak dapat membuat token baru.")
+			return
+		}
+
+		// Generate token secara acak
+		rand.Seed(time.Now().UnixNano())
+		token := fmt.Sprintf("TK-%06d", rand.Intn(1000000))
+
+		// Tambahkan token ke tokenList
+		tokenList = append(tokenList, token)
+		totalToken++
+
+		fmt.Println("Pembayaran berhasil! Berikut adalah token Anda:")
+		fmt.Println("Token: ", token)
+	} else {
+		fmt.Println("Pembayaran belum dilakukan. Silakan transfer terlebih dahulu.")
+	}
 }
 
 // Fungsi Cek Status Mahasiswa
