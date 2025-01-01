@@ -1,0 +1,524 @@
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+type Mahasiswa struct {
+	Nama     string
+	Jurusan  string
+	NilaiTes int
+	Status   string
+}
+
+type Jurusan struct {
+	NamaJurusan string
+}
+
+const MAX_DATA = 100
+
+var mahasiswaList [MAX_DATA]Mahasiswa
+var jurusanList [MAX_DATA]Jurusan
+var totalMahasiswa int
+var totalJurusan int
+
+// Fungsi untuk Data Dummy
+func init() {
+
+	jurusanList[0] = Jurusan{NamaJurusan: "Teknik Informatika"}
+	jurusanList[1] = Jurusan{NamaJurusan: "Sistem Informasi"}
+	jurusanList[2] = Jurusan{NamaJurusan: "Bisnis Digital"}
+	jurusanList[3] = Jurusan{NamaJurusan: "Desain Komunikasi Visual"}
+	totalJurusan = 4
+
+	mahasiswaList[0] = Mahasiswa{Nama: "Andi", Jurusan: "Teknik Informatika", NilaiTes: 84, Status: "Diterima"}
+	mahasiswaList[1] = Mahasiswa{Nama: "Eka", Jurusan: "Teknik Informatika", NilaiTes: 63, Status: "Ditolak"}
+	mahasiswaList[2] = Mahasiswa{Nama: "Dewi", Jurusan: "Desain Komunikasi Visual", NilaiTes: 91, Status: "Diterima"}
+	mahasiswaList[3] = Mahasiswa{Nama: "Citra", Jurusan: "Bisnis Digital", NilaiTes: 70, Status: "Diterima"}
+	mahasiswaList[4] = Mahasiswa{Nama: "Budi", Jurusan: "Sistem Informasi", NilaiTes: 53, Status: "Ditolak"}
+	mahasiswaList[5] = Mahasiswa{Nama: "Ucup", Jurusan: "Sistem Informasi", NilaiTes: 88, Status: "Diterima"}
+	mahasiswaList[6] = Mahasiswa{Nama: "Yanti", Jurusan: "Bisnis Digital", NilaiTes: 89, Status: "Diterima"}
+	mahasiswaList[7] = Mahasiswa{Nama: "Michael", Jurusan: "Desain Komunikasi Visual", NilaiTes: 69, Status: "Ditolak"}
+	totalMahasiswa = 8
+}
+
+// Fungsi Main
+func main() {
+	var pilihan int
+	for {
+		fmt.Println("\nSelamat Datang di Aplikasi Pendaftaran Mahasiswa")
+		fmt.Println("1. Menu Admin")
+		fmt.Println("2. Menu Calon Mahasiswa")
+		fmt.Println("3. Keluar")
+		fmt.Print("Masukkan pilihan: ")
+		fmt.Scan(&pilihan)
+
+		switch pilihan {
+		case 1:
+			menuAdmin()
+		case 2:
+			menuCalonMahasiswa()
+		case 3:
+			fmt.Println("Terima kasih, keluar dari aplikasi.")
+			return
+		default:
+			fmt.Println("Pilihan tidak valid!")
+		}
+	}
+}
+
+// Menu Admin
+func menuAdmin() {
+	var pilihan int
+	for {
+		tampilkanMahasiswa()
+		fmt.Println("\n--- Menu Admin ---")
+		fmt.Println("\n1. Tambah Jurusan")
+		fmt.Println("2. Tambah Mahasiswa")
+		fmt.Println("3. Edit Data Mahasiswa")
+		fmt.Println("4. Hapus Data Mahasiswa")
+		fmt.Println("5. Filter dan Urutkan Data Mahasiswa")
+		fmt.Println("6. Cari Data Mahasiswa")
+		fmt.Println("7. Export Data Mahasiswa")
+		fmt.Println("8. Kembali")
+		fmt.Print("Masukkan pilihan: ")
+		fmt.Scan(&pilihan)
+
+		switch pilihan {
+		case 1:
+			tambahJurusan()
+		case 2:
+			tambahMahasiswa()
+		case 3:
+			editDataMahasiswa()
+		case 4:
+			deleteMahasiswa()
+		case 5:
+			filterDanUrutkanMahasiswa()
+		case 6:
+			cariMahasiswaDenganBinarySearch()
+		case 7:
+			exportDataToFile()
+		case 8:
+			return
+		default:
+			fmt.Println("Pilihan tidak valid!")
+		}
+	}
+}
+
+// Menu Calon Mahasiswa
+func menuCalonMahasiswa() {
+	var pilihan int
+	for {
+		fmt.Println("\n--- Menu Calon Mahasiswa ---")
+		fmt.Println("1. Daftar Mahasiswa Baru")
+		fmt.Println("2. Cek Status Pendaftaran")
+		fmt.Println("3. Kembali ke Menu Utama")
+		fmt.Print("Masukkan pilihan: ")
+		fmt.Scan(&pilihan)
+
+		switch pilihan {
+		case 1:
+			menuPendaftaranMahasiswa()
+		case 2:
+			cekStatusMahasiswa()
+		case 3:
+			return
+		default:
+			fmt.Println("Pilihan tidak valid!")
+		}
+	}
+}
+
+// Fungsi Tambah Jurusan
+func tambahJurusan() {
+	if totalJurusan >= MAX_DATA {
+		fmt.Println("Data jurusan penuh!")
+		return
+	}
+
+	var jurusan Jurusan
+	fmt.Print("Masukkan Nama Jurusan: ")
+	fmt.Scan(&jurusan.NamaJurusan)
+
+	jurusanList[totalJurusan] = jurusan
+	totalJurusan++
+	fmt.Println("Jurusan berhasil ditambahkan!")
+}
+
+// Fungsi Tambah Mahasiswa oleh Admin
+func tambahMahasiswa() {
+	if totalMahasiswa >= MAX_DATA {
+		fmt.Println("Data mahasiswa penuh!")
+		return
+	}
+
+	var m Mahasiswa
+	fmt.Print("Masukkan Nama Mahasiswa: ")
+	fmt.Scan(&m.Nama)
+
+	fmt.Println("Jurusan Tersedia:")
+	for i := 0; i < totalJurusan; i++ {
+		fmt.Printf("%d. %s\n", i+1, jurusanList[i].NamaJurusan)
+	}
+
+	var pilihanJurusan int
+	fmt.Print("Pilih Jurusan (1 - ", totalJurusan, "): ")
+	fmt.Scan(&pilihanJurusan)
+	if pilihanJurusan > 0 && pilihanJurusan <= totalJurusan {
+		m.Jurusan = jurusanList[pilihanJurusan-1].NamaJurusan
+	} else {
+		fmt.Println("Pilihan jurusan tidak valid!")
+		return
+	}
+
+	fmt.Print("Masukkan Nilai Tes Mahasiswa: ")
+	fmt.Scan(&m.NilaiTes)
+
+	if m.NilaiTes >= 70 {
+		m.Status = "Diterima"
+	} else {
+		m.Status = "Ditolak"
+	}
+
+	mahasiswaList[totalMahasiswa] = m
+	totalMahasiswa++
+
+	fmt.Println("Data mahasiswa berhasil ditambahkan!")
+}
+
+// Fungsi Pendaftaran Mahasiswa Baru
+func menuPendaftaranMahasiswa() {
+	if totalJurusan == 0 {
+		fmt.Println("Belum ada jurusan yang tersedia. Silakan hubungi admin.")
+		return
+	}
+
+	var m Mahasiswa
+	fmt.Print("Masukkan Nama: ")
+	fmt.Scan(&m.Nama)
+
+	fmt.Println("Jurusan Tersedia:")
+	for i := 0; i < totalJurusan; i++ {
+		fmt.Printf("%d. %s\n", i+1, jurusanList[i].NamaJurusan)
+	}
+
+	var pilihanJurusan int
+	fmt.Print("Pilih Jurusan (1 - ", totalJurusan, "): ")
+	fmt.Scan(&pilihanJurusan)
+	if pilihanJurusan > 0 && pilihanJurusan <= totalJurusan {
+		m.Jurusan = jurusanList[pilihanJurusan-1].NamaJurusan
+	} else {
+		fmt.Println("Jurusan tidak valid!")
+		return
+	}
+
+	fmt.Print("Masukkan Nilai Tes: ")
+	fmt.Scan(&m.NilaiTes)
+
+	if m.NilaiTes >= 70 {
+		m.Status = "Diterima"
+	} else {
+		m.Status = "Ditolak"
+	}
+
+	mahasiswaList[totalMahasiswa] = m
+	totalMahasiswa++
+	fmt.Println("Pendaftaran berhasil!")
+}
+
+// Fungsi Cek Status Mahasiswa
+func cekStatusMahasiswa() {
+	var nama string
+	fmt.Print("Masukkan nama untuk cek status: ")
+	fmt.Scan(&nama)
+
+	index := sequentialSearchMahasiswa(nama)
+	if index != -1 {
+		fmt.Printf("Halo %s! Status pendaftaran Anda: %s\n", mahasiswaList[index].Nama, mahasiswaList[index].Status)
+	} else {
+		fmt.Println("Data tidak ditemukan. Anda mungkin belum mendaftar.")
+	}
+}
+
+// Fungsi Edit Data Mahasiswa
+func editDataMahasiswa() {
+	var nama string
+	fmt.Print("Masukkan Nama Mahasiswa Yang Ingin Diubah Datanya: ")
+	fmt.Scan(&nama)
+
+	index := sequentialSearchMahasiswa(nama)
+	if index == -1 {
+		fmt.Println("Mahasiswa tidak ditemukan!")
+		return
+	}
+
+	fmt.Println("Data Mahasiswa Saat Ini:")
+	fmt.Printf("Nama: %s, Jurusan: %s, Nilai Tes: %d, Status: %s\n",
+		mahasiswaList[index].Nama, mahasiswaList[index].Jurusan, mahasiswaList[index].NilaiTes, mahasiswaList[index].Status)
+
+	var pilihan int
+	fmt.Println("Pilih opsi edit:")
+	fmt.Println("1. Ubah Seluruh Data")
+	fmt.Println("2. Ubah Jurusan atau Nilai Tes")
+	fmt.Print("Masukkan pilihan: ")
+	fmt.Scan(&pilihan)
+
+	switch pilihan {
+	case 1:
+		fmt.Print("Masukkan Nama Baru: ")
+		fmt.Scan(&mahasiswaList[index].Nama)
+
+		fmt.Println("Jurusan Tersedia:")
+		for i := 0; i < totalJurusan; i++ {
+			fmt.Printf("%d. %s\n", i+1, jurusanList[i].NamaJurusan)
+		}
+
+		var pilihanJurusan int
+		fmt.Print("Pilih Jurusan Baru (1 - ", totalJurusan, "): ")
+		fmt.Scan(&pilihanJurusan)
+		if pilihanJurusan > 0 && pilihanJurusan <= totalJurusan {
+			mahasiswaList[index].Jurusan = jurusanList[pilihanJurusan-1].NamaJurusan
+		} else {
+			fmt.Println("Pilihan jurusan tidak valid! Perubahan jurusan dibatalkan.")
+		}
+
+		fmt.Print("Masukkan Nilai Tes Baru: ")
+		fmt.Scan(&mahasiswaList[index].NilaiTes)
+
+	case 2:
+		var subPilihan int
+		fmt.Println("Pilih data yang ingin diubah:")
+		fmt.Println("1. Jurusan")
+		fmt.Println("2. Nilai Tes")
+		fmt.Print("Masukkan pilihan: ")
+		fmt.Scan(&subPilihan)
+
+		switch subPilihan {
+		case 1:
+			fmt.Println("Jurusan Tersedia:")
+			for i := 0; i < totalJurusan; i++ {
+				fmt.Printf("%d. %s\n", i+1, jurusanList[i].NamaJurusan)
+			}
+
+			var pilihanJurusan int
+			fmt.Print("Pilih Jurusan Baru (1 - ", totalJurusan, "): ")
+			fmt.Scan(&pilihanJurusan)
+			if pilihanJurusan > 0 && pilihanJurusan <= totalJurusan {
+				mahasiswaList[index].Jurusan = jurusanList[pilihanJurusan-1].NamaJurusan
+			} else {
+				fmt.Println("Pilihan jurusan tidak valid! Perubahan jurusan dibatalkan.")
+			}
+
+		case 2:
+			fmt.Print("Masukkan Nilai Tes Baru: ")
+			fmt.Scan(&mahasiswaList[index].NilaiTes)
+
+		default:
+			fmt.Println("Pilihan tidak valid!")
+		}
+
+	default:
+		fmt.Println("Pilihan tidak valid!")
+	}
+
+	if mahasiswaList[index].NilaiTes >= 70 {
+		mahasiswaList[index].Status = "Diterima"
+	} else {
+		mahasiswaList[index].Status = "Ditolak"
+	}
+
+	fmt.Println("Data mahasiswa berhasil diperbarui!")
+}
+
+// Fungsi Hapus Data Mahasiswa
+func deleteMahasiswa() {
+	var nama string
+	fmt.Print("Masukkan nama mahasiswa yang ingin dihapus: ")
+	fmt.Scan(&nama)
+
+	index := sequentialSearchMahasiswa(nama)
+	if index == -1 {
+		fmt.Println("Mahasiswa tidak ditemukan!")
+		return
+	}
+
+	for i := index; i < totalMahasiswa-1; i++ {
+		mahasiswaList[i] = mahasiswaList[i+1]
+	}
+	totalMahasiswa--
+
+	fmt.Println("Data mahasiswa berhasil dihapus!")
+}
+
+// Fungsi Tampilkan Data Mahasiswa
+func tampilkanMahasiswa() {
+	fmt.Println("\n--- Data Mahasiswa ---")
+	for i := 0; i < totalMahasiswa; i++ {
+		fmt.Printf("Nama: %s, Jurusan: %s, Nilai Tes: %d, Status: %s\n",
+			mahasiswaList[i].Nama, mahasiswaList[i].Jurusan, mahasiswaList[i].NilaiTes, mahasiswaList[i].Status)
+	}
+}
+
+// Fungsi Filter dan Urutkan Data Mahasiswa
+func filterDanUrutkanMahasiswa() {
+	var pilihan int
+	fmt.Println("\n--- Filter dan Urutkan Data Mahasiswa ---")
+	fmt.Println("1. Filter Berdasarkan Nama (A-Z)")
+	fmt.Println("2. Filter Berdasarkan Nilai Tes (Tertinggi ke Terendah)")
+	fmt.Println("3. Filter Berdasarkan Status (Diterima/Ditolak)")
+	fmt.Println("4. Filter Berdasarkan Jurusan")
+	fmt.Print("Masukkan pilihan: ")
+	fmt.Scan(&pilihan)
+
+	switch pilihan {
+	case 1:
+		// Urutkan Berdasarkan Nama (A-Z)
+		insertionSortMahasiswaByNama()
+		fmt.Println("\nData Mahasiswa diurutkan berdasarkan Nama (A-Z):")
+		tampilkanMahasiswa()
+	case 2:
+		// Urutkan Berdasarkan Nilai Tes (tertinggi ke terendah)
+		sortMahasiswaByNilaiDesc()
+		fmt.Println("\nData Mahasiswa diurutkan berdasarkan Nilai Tes (Tertinggi ke Terendah):")
+		tampilkanMahasiswa()
+	case 3:
+		// Urutkan Berdasarkan Status
+		var status string
+		fmt.Print("Masukkan status (Diterima/Ditolak): ")
+		fmt.Scan(&status)
+		fmt.Printf("\nData Mahasiswa dengan Status '%s':\n", status)
+		for i := 0; i < totalMahasiswa; i++ {
+			if mahasiswaList[i].Status == status {
+				fmt.Printf("Nama: %s, Jurusan: %s, Nilai Tes: %d, Status: %s\n",
+					mahasiswaList[i].Nama, mahasiswaList[i].Jurusan, mahasiswaList[i].NilaiTes, mahasiswaList[i].Status)
+			}
+		}
+	case 4:
+		// Urutkan Berdasarkan Jurusan
+		for {
+			fmt.Println("\n--- Filter Berdasarkan Jurusan ---")
+			fmt.Println("Jurusan Tersedia:")
+			for i := 0; i < totalJurusan; i++ {
+				fmt.Printf("%d. %s\n", i+1, jurusanList[i].NamaJurusan)
+			}
+			fmt.Println("0. Kembali ke Menu Utama")
+
+			var pilihanJurusan int
+			fmt.Print("Pilih jurusan (0 untuk kembali): ")
+			fmt.Scan(&pilihanJurusan)
+
+			if pilihanJurusan == 0 {
+				return
+			}
+
+			if pilihanJurusan > 0 && pilihanJurusan <= totalJurusan {
+				jurusanDipilih := jurusanList[pilihanJurusan-1].NamaJurusan
+				fmt.Printf("\nData Mahasiswa di Jurusan '%s':\n", jurusanDipilih)
+				adaData := false
+				for i := 0; i < totalMahasiswa; i++ {
+					if mahasiswaList[i].Jurusan == jurusanDipilih {
+						fmt.Printf("Nama: %s, Jurusan: %s, Nilai Tes: %d, Status: %s\n",
+							mahasiswaList[i].Nama, mahasiswaList[i].Jurusan, mahasiswaList[i].NilaiTes, mahasiswaList[i].Status)
+						adaData = true
+					}
+				}
+				if !adaData {
+					fmt.Println("Tidak ada data mahasiswa di jurusan ini.")
+				}
+				var filterLagi string
+				fmt.Print("Apakah Anda ingin filter jurusan lain? (y/n): ")
+				fmt.Scan(&filterLagi)
+
+				if filterLagi == "n" || filterLagi == "N" {
+					return
+				}
+			} else {
+				fmt.Println("Pilihan jurusan tidak valid!")
+			}
+		}
+	default:
+		fmt.Println("Pilihan tidak valid!")
+	}
+}
+
+func sortMahasiswaByNilaiDesc() {
+	for i := 0; i < totalMahasiswa-1; i++ {
+		for j := i + 1; j < totalMahasiswa; j++ {
+			if mahasiswaList[i].NilaiTes < mahasiswaList[j].NilaiTes {
+				mahasiswaList[i], mahasiswaList[j] = mahasiswaList[j], mahasiswaList[i]
+			}
+		}
+	}
+}
+
+func insertionSortMahasiswaByNama() {
+	for i := 1; i < totalMahasiswa; i++ {
+		key := mahasiswaList[i]
+		j := i - 1
+		for j >= 0 && mahasiswaList[j].Nama > key.Nama {
+			mahasiswaList[j+1] = mahasiswaList[j]
+			j--
+		}
+		mahasiswaList[j+1] = key
+	}
+}
+
+func cariMahasiswaDenganBinarySearch() {
+	insertionSortMahasiswaByNama()
+
+	var nama string
+	fmt.Print("Masukkan nama mahasiswa yang ingin dicari: ")
+	fmt.Scan(&nama)
+
+	index := binarySearchMahasiswa(nama)
+	if index != -1 {
+		fmt.Printf("Mahasiswa ditemukan! Nama: %s, Jurusan: %s, Nilai Tes: %d, Status: %s\n",
+			mahasiswaList[index].Nama, mahasiswaList[index].Jurusan, mahasiswaList[index].NilaiTes, mahasiswaList[index].Status)
+	} else {
+		fmt.Println("Mahasiswa tidak ditemukan.")
+	}
+}
+
+// Fungsi Sequential Search Mahasiswa
+func sequentialSearchMahasiswa(nama string) int {
+	for i := 0; i < totalMahasiswa; i++ {
+		if mahasiswaList[i].Nama == nama {
+			return i
+		}
+	}
+	return -1
+}
+
+func binarySearchMahasiswa(nama string) int {
+	low, high := 0, totalMahasiswa-1
+	for low <= high {
+		mid := (low + high) / 2
+		if mahasiswaList[mid].Nama == nama {
+			return mid
+		} else if mahasiswaList[mid].Nama < nama {
+			low = mid + 1
+		} else {
+			high = mid - 1
+		}
+	}
+	return -1
+}
+
+// Fungsi Export Data ke File
+func exportDataToFile() {
+	file, err := os.Create("data_mahasiswa.xls")
+	if err != nil {
+		fmt.Println("Gagal membuat file!")
+		return
+	}
+	defer file.Close()
+
+	for i := 0; i < totalMahasiswa; i++ {
+		file.WriteString(fmt.Sprintf("Nama: %s, Jurusan: %s, Nilai Tes: %d, Status: %s\n",
+			mahasiswaList[i].Nama, mahasiswaList[i].Jurusan, mahasiswaList[i].NilaiTes, mahasiswaList[i].Status))
+	}
+	fmt.Println("Data berhasil diekspor ke 'data_mahasiswa.xls'.")
+}
